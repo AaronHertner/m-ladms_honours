@@ -37,50 +37,101 @@ def play():
 def silence():
     pygame.quit()
 
+def factor(val, pos):
+    mins = {
+        0: -2.353,
+        1: -3.280,
+        2: -2.774,
+        3: -3.833,
+        4: -1.410
+        }
+    maxs = {
+        0: 5.488,
+        1: 5.210,
+        2: 4.528,
+        3: 4.819,
+        4: 4.251
+        }
+    
+    min_val = mins[pos]/1.5
+    max_val = maxs[pos]/1.5
+    diff = max_val - min_val
+    att = min_val + (diff * val)
+    print(att)
+    return att
+
 def process():
     pickle_model = pickle.load(open("../models/kmeans.pkl", 'rb'))
     print("model loaded...")
-    tester = [[1.64223768, -0.09122065, -0.32480933,  1.79689,     0.64424335]]
+    
+    #grab slider values and apply to scale
+    acousticness = acoust.get()/100
+    valence = val.get()/100
+    instrumentalness = inst.get()/100
+    speechiness = speech.get()/100
+    liveness = live.get()/100
+    
+    print("Attribute %: ", acousticness, valence, instrumentalness)
+    
+    acoust_factor = factor(acousticness, 3)
+    val_factor = factor(valence, 1)
+    inst_factor = factor(instrumentalness, 2)
+    speech_factor = factor(speechiness, 0)
+    live_factor = factor(liveness, 4)
+    x = [[acoust_factor, val_factor, inst_factor,  speech_factor, live_factor]]
+    
+    #model predictions
     print("predicting...")
-    y_pred = pickle_model.predict(tester)
+    y_pred = pickle_model.predict(x)
     print("done: ", y_pred[0])
     
     genre = genre_dict[y_pred[0]]
     print("genre: ", genre)
     
-    #add text box
-    genre_name = tk.Label(root, text = genre, fg="Black", font=("Raleway", 20))
-    genre_name.grid(column=1, row=2)
+    #change genre label
+    genre_name.config(text=genre)
+    genre_name.grid(column=2, row=2)
     
     #add play button
     playBtn = tk.Button(root, text="Play", padx=10, pady=5, bg='#263A51', fg='white', font='Raleway', command=play)
-    playBtn.grid(column=1, row=3)
+    playBtn.grid(column=2, row=3, padx = 8, sticky='W')
     
     #add stop button
     stopBtn = tk.Button(root, text="Stop", padx=10, pady=5, bg='#263A51', fg='white', font='Raleway', command=silence)
-    stopBtn.grid(column=1, row=4)
+    stopBtn.grid(column=2, row=3, padx = 8, sticky='E')
     
-    
-
 
 canvas = tk.Canvas(root, height=400, width=700)
 canvas.grid(columnspan=3, rowspan=5)
 
-#sliders
-acoust = tk.Scale(root, from_=0, to=100, length = 200,orient=HORIZONTAL, font="Raleway")
-acoust.grid(column=0, row=0)
-val = tk.Scale(root, from_=0, to=100, length = 200, orient=HORIZONTAL, font="Raleway")
-val.grid(column=0, row=1)
-inst = tk.Scale(root, from_=0, to=100, length = 200,orient=HORIZONTAL, font="Raleway")
-inst.grid(column=0, row=2)
-speech = tk.Scale(root, from_=0, to=100, length = 200,orient=HORIZONTAL, font="Raleway")
-speech.grid(column=0, row=3)
-live = tk.Scale(root, from_=0, to=100, length = 200, orient=HORIZONTAL, font="Raleway")
-live.grid(column=0, row=4)
+#slider labels
+acoust_label = tk.Label(root, text="Acousticness", font='Raleway').grid(column=0, row=0, padx=4, pady=4)
+val_label = tk.Label(root, text="Valence", font='Raleway').grid(column=0, row=1, padx=4, pady=4)
+inst_label = tk.Label(root, text="Instrumentalness", font='Raleway').grid(column=0, row=2, padx=4, pady=4)
+speech_label = tk.Label(root, text="Speechiness", font='Raleway').grid(column=0, row=3, padx=4, pady=4)
+live_label = tk.Label(root, text="Liveness", font='Raleway').grid(column=0, row=4, padx=4, pady=4)
 
+#sliders
+acoust = tk.Scale(root, from_=0, to=100, length = 300,orient=HORIZONTAL, font="Raleway")
+acoust.grid(column=1, row=0)
+val = tk.Scale(root, from_=0, to=100, length = 300, orient=HORIZONTAL, font="Raleway")
+val.grid(column=1, row=1)
+inst = tk.Scale(root, from_=0, to=100, length = 300,orient=HORIZONTAL, font="Raleway")
+inst.grid(column=1, row=2)
+speech = tk.Scale(root, from_=0, to=100, length = 300,orient=HORIZONTAL, font="Raleway")
+speech.grid(column=1, row=3)
+live = tk.Scale(root, from_=0, to=100, length = 300, orient=HORIZONTAL, font="Raleway")
+live.grid(column=1, row=4)
+
+#process button
 processBtn = tk.Button(root, text="Process", padx=10, pady=5, fg="white", bg="#263A51", command=process, font="Raleway")
-processBtn.grid(column=1, row=0)
+processBtn.grid(column=2, row=0)
+
+#clear button
 clearBtn = tk.Button(root, text="Clear", padx=10, pady=5, fg="white", bg="#8F1522", font="Raleway")
-clearBtn.grid(column=1, row=1)
+clearBtn.grid(column=2, row=1)
+
+#genre textbox
+genre_name = tk.Label(root, text = "Default", fg="Black", font=("Raleway", 20))
 
 root.mainloop()
