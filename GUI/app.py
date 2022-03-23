@@ -1,14 +1,17 @@
 import tkinter as tk
 from tkinter import HORIZONTAL, Scale, filedialog, Text
 import os
+from os import listdir
 import numpy
 import pickle
 import pygame
+import random as r
 from tkinter import font
 
 #like html this is the body
 root = tk.Tk()
 
+genre = 'NA'
 genre_dict = {
     0: "Trap",
     1: "Hip Hop",
@@ -21,21 +24,33 @@ genre_dict = {
 
 #https://www.online-convert.com/result#j=c591cb40-c5ff-4df3-8b38-e585cab2ff0f
 def play():
+    all_sounds = listdir('../sounds/synth') #replace synth with the selected genre
+        
     pygame.mixer.init()
     channel1 = pygame.mixer.Channel(0)
     channel2 = pygame.mixer.Channel(1)
     channel3 = pygame.mixer.Channel(2)
     
-    sound1 = pygame.mixer.Sound('../sounds/ussr1.ogg')
-    sound2 = pygame.mixer.Sound('../sounds/mud.ogg')
-    sound3 = pygame.mixer.Sound('../sounds/deez.ogg')
+    drum = r.randint(0,2)
+    melody=r.randint(2,4)
+    rhythm=r.randint(5,7)
     
-    channel1.play(sound1, -1)
+    print("melody: ", all_sounds[melody])
+    print("rhythm: ", all_sounds[rhythm])
+    
+    sound1 = pygame.mixer.Sound('../sounds/synth/' + all_sounds[melody])
+    sound2 = pygame.mixer.Sound('../sounds/synth/' + all_sounds[rhythm])
+    sound3 = pygame.mixer.Sound('../sounds/synth/' + all_sounds[drum])
+    
+    channel1.play(sound1, 1)
     channel2.play(sound2, -1)
     channel3.play(sound3, -1)
     
+    print("playing...")
+    
 def silence():
     pygame.quit()
+    print('stopped playing...')
 
 def factor(val, pos):
     mins = {
@@ -133,5 +148,11 @@ clearBtn.grid(column=2, row=1)
 
 #genre textbox
 genre_name = tk.Label(root, text = "Default", fg="Black", font=("Raleway", 20))
+
+#stop music if the window closes
+def on_close():
+    silence()
+    root.destroy()
+root.protocol("WM_DELETE_WINDOW", on_close)
 
 root.mainloop()
