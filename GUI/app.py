@@ -16,33 +16,31 @@ genre_dict = {
     0: "Trap",
     1: "Hip Hop",
     2: "Hardstyle",
-    3: "Metal",
+    3: "Synthwave",
     4: "RnB",
     5: "Psytrance",
     6: "Pop"
 }
 
 #https://www.online-convert.com/result#j=c591cb40-c5ff-4df3-8b38-e585cab2ff0f
-def play():
-    all_sounds = listdir('../sounds/synth') #replace synth with the selected genre
+def play(drum, melody, rhythm):
+    genre_dir = '../sounds/psytrance/'
+    all_sounds = listdir(genre_dir) #replace synth with the selected genre
+    print(all_sounds)
         
     pygame.mixer.init()
     channel1 = pygame.mixer.Channel(0)
     channel2 = pygame.mixer.Channel(1)
     channel3 = pygame.mixer.Channel(2)
     
-    drum = r.randint(0,2)
-    melody=r.randint(2,4)
-    rhythm=r.randint(5,7)
-    
     print("melody: ", all_sounds[melody])
     print("rhythm: ", all_sounds[rhythm])
     
-    sound1 = pygame.mixer.Sound('../sounds/synth/' + all_sounds[melody])
-    sound2 = pygame.mixer.Sound('../sounds/synth/' + all_sounds[rhythm])
-    sound3 = pygame.mixer.Sound('../sounds/synth/' + all_sounds[drum])
+    sound1 = pygame.mixer.Sound(genre_dir + all_sounds[melody])
+    sound2 = pygame.mixer.Sound(genre_dir + all_sounds[rhythm])
+    sound3 = pygame.mixer.Sound(genre_dir + all_sounds[drum])
     
-    channel1.play(sound1, 1)
+    channel1.play(sound1, -1)
     channel2.play(sound2, -1)
     channel3.play(sound3, -1)
     
@@ -108,7 +106,11 @@ def process():
     genre_name.grid(column=2, row=2)
     
     #add play button
-    playBtn = tk.Button(root, text="Play", padx=10, pady=5, bg='#263A51', fg='white', font='Raleway', command=play)
+    drum = r.randint(0,2)
+    melody=r.randint(3,5)
+    rhythm=r.randint(6,8)
+    playBtn = tk.Button(root, text="Play", padx=10, pady=5, bg='#263A51', fg='white', font='Raleway', 
+                        command= lambda: play(drum, melody, rhythm)) #we can pass the genre too
     playBtn.grid(column=2, row=3, padx = 8, sticky='W')
     
     #add stop button
