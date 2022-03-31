@@ -13,18 +13,18 @@ root = tk.Tk()
 
 genre = 'NA'
 genre_dict = {
-    0: "Trap",
-    1: "Hip Hop",
-    2: "Hardstyle",
-    3: "Synthwave",
-    4: "RnB",
-    5: "Psytrance",
-    6: "Pop"
+    0: ["Psytrance","psytrance"],
+    1: ["Hip Hop", "hiphop"],
+    2: ["Trap", "trap"],
+    3: ["Hardstyle", "hardstyle"],
+    4: ["RnB", "rnb"],
+    5: ["Synthwave", "synth"],
+    6: ["Pop", "pop"]
 }
 
 #https://www.online-convert.com/result#j=c591cb40-c5ff-4df3-8b38-e585cab2ff0f
-def play(drum, melody, rhythm):
-    genre_dir = '../sounds/psytrance/'
+def play(drum, melody, rhythm, genre):
+    genre_dir = '../sounds/'+genre+'/'
     all_sounds = listdir(genre_dir) #replace synth with the selected genre
     print(all_sounds)
         
@@ -74,6 +74,9 @@ def factor(val, pos):
     return att
 
 def process():
+    #stop music if it is currently playing
+    silence()
+    
     pickle_model = pickle.load(open("../models/kmeans.pkl", 'rb'))
     print("model loaded...")
     
@@ -98,7 +101,7 @@ def process():
     y_pred = pickle_model.predict(x)
     print("done: ", y_pred[0])
     
-    genre = genre_dict[y_pred[0]]
+    genre = genre_dict[y_pred[0]][0]
     print("genre: ", genre)
     
     #change genre label
@@ -110,7 +113,7 @@ def process():
     melody=r.randint(3,5)
     rhythm=r.randint(6,8)
     playBtn = tk.Button(root, text="Play", padx=10, pady=5, bg='#263A51', fg='white', font='Raleway', 
-                        command= lambda: play(drum, melody, rhythm)) #we can pass the genre too
+                        command= lambda: play(drum, melody, rhythm, genre_dict[y_pred[0]][1])) #we can pass the genre too
     playBtn.grid(column=2, row=3, padx = 8, sticky='W')
     
     #add stop button
