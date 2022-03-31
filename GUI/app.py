@@ -22,19 +22,21 @@ genre_dict = {
     6: ["Pop", "pop"]
 }
 
+#button array so we can turn them on and off
+btn_arr = []
+
 #https://www.online-convert.com/result#j=c591cb40-c5ff-4df3-8b38-e585cab2ff0f
 def play(drum, melody, rhythm, genre):
+    #disable button
+    toggle_button(btn_arr[0])
+    
     genre_dir = '../sounds/'+genre+'/'
     all_sounds = listdir(genre_dir) #replace synth with the selected genre
-    print(all_sounds)
-        
+    
     pygame.mixer.init()
     channel1 = pygame.mixer.Channel(0)
     channel2 = pygame.mixer.Channel(1)
     channel3 = pygame.mixer.Channel(2)
-    
-    print("melody: ", all_sounds[melody])
-    print("rhythm: ", all_sounds[rhythm])
     
     sound1 = pygame.mixer.Sound(genre_dir + all_sounds[melody])
     sound2 = pygame.mixer.Sound(genre_dir + all_sounds[rhythm])
@@ -44,11 +46,10 @@ def play(drum, melody, rhythm, genre):
     channel2.play(sound2, -1)
     channel3.play(sound3, -1)
     
-    print("playing...")
-    
 def silence():
     pygame.quit()
-    print('stopped playing...')
+    if(len(btn_arr) > 0):
+        toggle_button(btn_arr[0])
 
 def factor(val, pos):
     mins = {
@@ -73,12 +74,21 @@ def factor(val, pos):
     print(att)
     return att
 
+def toggle_button(button):    
+        if (button["state"] == "disabled"):
+            button["state"] = "normal"
+        else:
+            button["state"] = "disabled"
+
 def process():
     #stop music if it is currently playing
     silence()
     
+    #toggle play button
+    if(len(btn_arr) > 0):
+        toggle_button(btn_arr[0])
+    
     pickle_model = pickle.load(open("../models/kmeans.pkl", 'rb'))
-    print("model loaded...")
     
     #grab slider values and apply to scale
     acousticness = acoust.get()/100
@@ -86,8 +96,6 @@ def process():
     instrumentalness = inst.get()/100
     speechiness = speech.get()/100
     liveness = live.get()/100
-    
-    print("Attribute %: ", acousticness, valence, instrumentalness)
     
     acoust_factor = factor(acousticness, 3)
     val_factor = factor(valence, 1)
@@ -97,28 +105,31 @@ def process():
     x = [[acoust_factor, val_factor, inst_factor,  speech_factor, live_factor]]
     
     #model predictions
-    print("predicting...")
     y_pred = pickle_model.predict(x)
-    print("done: ", y_pred[0])
-    
     genre = genre_dict[y_pred[0]][0]
-    print("genre: ", genre)
     
     #change genre label
     genre_name.config(text=genre)
     genre_name.grid(column=2, row=2)
     
-    #add play button
+    
     drum = r.randint(0,2)
     melody=r.randint(3,5)
     rhythm=r.randint(6,8)
+    
+    #add play button
     playBtn = tk.Button(root, text="Play", padx=10, pady=5, bg='#263A51', fg='white', font='Raleway', 
                         command= lambda: play(drum, melody, rhythm, genre_dict[y_pred[0]][1])) #we can pass the genre too
     playBtn.grid(column=2, row=3, padx = 8, sticky='W')
     
     #add stop button
-    stopBtn = tk.Button(root, text="Stop", padx=10, pady=5, bg='#263A51', fg='white', font='Raleway', command=silence)
+    stopBtn = tk.Button(root, text="Stop", padx=10, pady=5, bg='#8F1522', fg='white', font='Raleway', 
+                        command=silence)
     stopBtn.grid(column=2, row=3, padx = 8, sticky='E')
+    
+    #add buttons to button array
+    btn_arr.append(playBtn)
+    btn_arr.append(stopBtn)
     
 
 canvas = tk.Canvas(root, height=400, width=700)
@@ -148,7 +159,7 @@ processBtn = tk.Button(root, text="Process", padx=10, pady=5, fg="white", bg="#2
 processBtn.grid(column=2, row=0)
 
 #clear button
-clearBtn = tk.Button(root, text="Clear", padx=10, pady=5, fg="white", bg="#8F1522", font="Raleway")
+clearBtn = tk.Button(root, text="Clear", padx=10, pady=5, fg="white", bg="#263A51", font="Raleway")
 clearBtn.grid(column=2, row=1)
 
 #genre textbox
