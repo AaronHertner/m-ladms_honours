@@ -2,6 +2,6 @@
   
   This project uses JupyterLabs, sklearn, python, pickle, TKinter, and FLStudio to create a GUI that users can interact with that will create music based on various selections.
 
-![MLADMS](https://github.com/AaronHertner/m-ladms_honours/blob/main/MLADMS.jpg)
-<img src="https://github.com/AaronHertner/m-ladms_honours/blob/main/MLADMS.jpg"
+![MLADMS](https://github.com/AaronHertner/m-ladms_honours/blob/main/MLADMS.png)
+<img src="https://github.com/AaronHertner/m-ladms_honours/blob/main/MLADMS.png"
      style="float: left; margin-right: 10px;" />
